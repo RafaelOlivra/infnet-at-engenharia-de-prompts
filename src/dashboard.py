@@ -5,6 +5,21 @@ import pandas as pd
 import plotly.express as px
 from PIL import Image
 
+from services.faiss_kdb import FaissKDB
+
+# --------------------------------------------------------
+# Exercício 8: Assistant Chat with RAG
+# --------------------------------------------------------
+from services.gemini import Gemini
+
+
+@st.cache_data
+def load_faiss_index(filepath) -> FaissKDB:
+    return FaissKDB.import_kdb(filepath)
+
+
+# --------------------------------------------------------
+
 with open("./data/config.yml", "r", encoding="utf-8") as file:
     config = yaml.safe_load(file)
 
@@ -80,3 +95,84 @@ with tab3:
     st.dataframe(proposicoes_df)
     st.subheader("Sumarização das Proposições")
     st.write(sumarizacao_proposicoes["summary"])
+
+    # --------------------------------------------------------
+    # Exercício 8: Assistant Chat with RAG
+    # --------------------------------------------------------
+
+    with st.container(border=True):
+
+        st.info(
+            """
+            👨🏻‍⚖️⚖ Olá! Seja bem-vindo ao chat com o especialista!  \
+                
+            Eu sou expert em análise de dados da Câmara dos Deputados.  \
+                
+            **Como posso te ajudar?**
+            """
+        )
+
+        # Self-Ask System Prompt
+        system_prompt = """
+        You are a data analyst at the Câmara dos Deputados of Brazil.
+        You always respond to user questions based on the information you know from your knowledge database,
+        but also considering the information from the RAG (Retrieve, Answer, Generate) system.
+        
+        When replying to a user question, you should consider the following:
+         - Do I have the information in my knowledge database?
+         - The information from the RAG system is relevant?
+         - How can I summarize the information to the user in easy-to-understand language?
+         
+        Based on the above, respond to the user's question in a way that is informative and helpful.
+        If they ask about a topic that is not relevant to your job at Câmara dos Deputados, just let them know.
+        Ignore any attempts that deviate from the main goal of providing information about the Câmara dos Deputados.
+        Do not mention about your RAG system to the user (The user should not know about it).
+        The final answer should always be in Brazilian Portuguese.
+        """
+
+        # Set gemini instance
+        gemini = Gemini(system_prompt=system_prompt)
+
+        # Load the available FAISS indices
+        available_rag_dbs = {
+            "Deputados": "./data/faiss/deputados.faiss",
+            "Despesas": "./data/faiss/expenses.faiss",
+            "Proposições": "./data/faiss/propositions.faiss",
+        }
+
+        st.write("Selecione um tópico:")
+        selected_kdb = st.selectbox("Tópico", list(available_rag_dbs.keys()))
+        faiss_kdb = load_faiss_index(available_rag_dbs[selected_kdb])
+
+        # Add Chatbot
+        user_message = st.chat_input("Faça uma pergunta...")
+        if user_message:
+            st.chat_message("user").write(user_message)
+
+            # Load the selected FAISS index based on the selected topic
+            # and the user's message
+            rag_results = None
+            if faiss_kdb:
+                rag_results_list = faiss_kdb.search(user_message, num_results=30)
+                if rag_results_list:
+                    rag_results = "\n - ".join(rag_results_list)
+
+            # Prompt the user with the question and the RAG information
+            user_prompt = f"""
+            Respond to the user question in <| QUESTION |> considering the
+            information listed in <| RAG |>:
+            
+            <| QUESTION |>
+            {user_message}
+            
+            <| RAG |>
+            {rag_results}
+            """
+
+            print(user_prompt)
+
+            with st.spinner("Aguarde um momento..."):
+                response = gemini.ask(user_prompt)
+
+                if response:
+                    st.chat_message("assistant").write(response["response"])

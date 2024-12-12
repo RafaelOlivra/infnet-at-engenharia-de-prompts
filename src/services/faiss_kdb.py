@@ -66,7 +66,7 @@ class FaissKDB(object):
         return joblib.load(filename)
 
     # Search for the most similar texts in the vector space
-    def search(self, query, k=5, index_type="l2"):
+    def search(self, query, num_results=5, index_type="l2") -> list:
         query_embedding = self.embedding_model.encode(
             [query]
         )  # Generate embedding for the query
@@ -78,17 +78,19 @@ class FaissKDB(object):
 
         # Perform search based on selected index type (L2, IP, or both)
         if index_type.lower() == "l2" or index_type.lower() == "both":
-            distances, indices = self.index_l2.search(query_embedding, k)
-            for i in range(k):
-                results.append(
-                    self.texts[indices[0][i]]
-                )  # Add the most similar texts based on L2 distance
+            distances, indices = self.index_l2.search(query_embedding, num_results)
+            for i in range(num_results):
+                if indices[0][i] < len(self.texts):
+                    results.append(
+                        self.texts[indices[0][i]]
+                    )  # Add the most similar texts based on L2 distance
 
         if index_type.lower() == "ip" or index_type.lower() == "both":
-            distances, indices = self.index_ip.search(query_embedding, k)
-            for i in range(k):
-                results.append(
-                    self.texts[indices[0][i]]
-                )  # Add the most similar texts based on inner product
+            distances, indices = self.index_ip.search(query_embedding, num_results)
+            for i in range(num_results):
+                if indices[0][i] < len(self.texts):
+                    results.append(
+                        self.texts[indices[0][i]]
+                    )  # Add the most similar texts based on inner product
 
         return results

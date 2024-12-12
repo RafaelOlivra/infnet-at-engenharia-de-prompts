@@ -15,7 +15,7 @@ class Gemini:
     A simple class that implements methods to generate content using the Google Gemini API.
     """
 
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, system_prompt=None):
 
         # Set the API key, either from the environment or directly from the parameter
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
@@ -25,6 +25,7 @@ class Gemini:
         genai.configure(api_key=self.api_key)
         self.model_name = "gemini-1.5-flash"
         self.response = None
+        self.system_prompt = system_prompt
 
     def ask(self, prompt: str) -> AIResponse:
         try:
@@ -34,7 +35,9 @@ class Gemini:
             # Count the time taken to generate the content
             start_time = time.time()
 
-            model = genai.GenerativeModel(self.model_name)
+            model = genai.GenerativeModel(
+                model_name=self.model_name, system_instruction=self.system_prompt
+            )
             response = model.generate_content(prompt)
 
             # Calculate the time taken to generate the content

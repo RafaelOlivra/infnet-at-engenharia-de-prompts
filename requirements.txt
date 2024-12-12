@@ -19,3 +19,4 @@ pyarrow
 sentence_transformers
 faiss-cpu
 joblib
+plotly

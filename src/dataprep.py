@@ -598,13 +598,20 @@ def generate_faiss_index():
             lambda row: f"{row['id']} {row['siglaTipo']} {row['ementa']}",
             axis=1,
         )
-        print(propositions_df)
-        faiss_db.add_text(propositions_df["text"].to_list())
 
         # Add the propositions summary to the index
         with open(propositions_summary_file, "r", encoding="utf-8") as file:
             propositions_summary = json.load(file)
-            faiss_db.add_text([propositions_summary["summary"]])
+            propositions_summary_text = propositions_summary["summary"]
+            propositions_df = pd.concat(
+                [
+                    propositions_df,
+                    pd.DataFrame([propositions_summary_text], columns=["text"]),
+                ]
+            )
+
+        print(propositions_df)
+        faiss_db.add_text(propositions_df["text"].to_list())
 
         # Export the index
         faiss_db.export_kdb(faiss_index_folder + "/propositions.faiss")
