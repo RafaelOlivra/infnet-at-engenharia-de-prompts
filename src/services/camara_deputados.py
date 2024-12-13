@@ -81,7 +81,7 @@ class CamaraDeputados:
                 break
 
             print(f" - Got {len(resp['dados'])} expenses")
-            despesas = pd.concat([despesas, pd.DataFrame(resp["dados"])]))
+            despesas = pd.concat([despesas, pd.DataFrame(resp["dados"])])
             page += 1
             params["pagina"] = page
             time.sleep(0.5)
@@ -145,7 +145,7 @@ class CamaraDeputados:
                 break
 
             print(f" - Got {len(resp['dados'])} proposicoes")
-            proposicoes = pd.concat([proposicoes, pd.DataFrame(resp["dados"])]))
+            proposicoes = pd.concat([proposicoes, pd.DataFrame(resp["dados"])])
             page += 1
             params["pagina"] = page
             time.sleep(0.5)

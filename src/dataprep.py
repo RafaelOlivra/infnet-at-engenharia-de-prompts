@@ -554,7 +554,21 @@ def generate_faiss_index():
         deputados_df["text"] = deputados_df.apply(
             lambda row: f"{row['id']} {row['nome']} {row['siglaPartido']}", axis=1
         )
+
+        # Add the deputados insights to the index
+        with open(deputados_insights_file, "r") as file:
+            deputados_insights = json.load(file)
+            deputados_insights_text = "\n".join(deputados_insights["insights"])
+            deputados_df = pd.concat(
+                [
+                    deputados_df,
+                    pd.DataFrame([deputados_insights_text], columns=["text"]),
+                ]
+            )
+
         print(deputados_df)
+
+        # Generate the index
         faiss_db.add_text(deputados_df["text"].to_list())
 
         # Export the index
@@ -580,11 +594,24 @@ def generate_faiss_index():
                 )
             expenses_df = _expenses_df
 
+        # Add the expenses insights to the index
+        with open(expenses_insights_file, "r") as file:
+            expenses_insights = json.load(file)
+            expenses_insights_text = "\n".join(expenses_insights["insights"])
+            expenses_df = pd.concat(
+                [
+                    expenses_df,
+                    pd.DataFrame([expenses_insights_text], columns=["text"]),
+                ]
+            )
+
         expenses_df["text"] = expenses_df.apply(
             lambda row: f"{row['idDeputado']} {row['tipoDespesa']} {row['valorDocumento']}",
             axis=1,
         )
         print(expenses_df)
+
+        # Generate the index
         faiss_db.add_text(expenses_df["text"].to_list())
 
         # Export the index

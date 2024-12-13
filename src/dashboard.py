@@ -153,7 +153,7 @@ with tab3:
             # and the user's message
             rag_results = None
             if faiss_kdb:
-                rag_results_list = faiss_kdb.search(user_message, num_results=30)
+                rag_results_list = faiss_kdb.search(user_message, num_results=40)
                 if rag_results_list:
                     rag_results = "\n - ".join(rag_results_list)
 
