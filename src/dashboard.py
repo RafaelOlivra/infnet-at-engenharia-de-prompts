@@ -134,15 +134,15 @@ with tab3:
         gemini = Gemini(system_prompt=system_prompt)
 
         # Load the available FAISS indices
-        available_rag_dbs = {
+        available_rag_kdbs = {
             "Deputados": "./data/faiss/deputados.faiss",
             "Despesas": "./data/faiss/expenses.faiss",
             "Proposições": "./data/faiss/propositions.faiss",
         }
 
         st.write("Selecione um tópico:")
-        selected_kdb = st.selectbox("Tópico", list(available_rag_dbs.keys()))
-        faiss_kdb = load_faiss_index(available_rag_dbs[selected_kdb])
+        selected_kdb = st.selectbox("Tópico", list(available_rag_kdbs.keys()))
+        faiss_kdb = load_faiss_index(available_rag_kdbs[selected_kdb])
 
         # Add Chatbot
         user_message = st.chat_input("Faça uma pergunta...")
@@ -173,6 +173,5 @@ with tab3:
 
             with st.spinner("Aguarde um momento..."):
                 response = gemini.ask(user_prompt)
-
                 if response:
                     st.chat_message("assistant").write(response["response"])

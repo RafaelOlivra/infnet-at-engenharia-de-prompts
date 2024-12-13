@@ -16,6 +16,12 @@ class Gemini:
     """
 
     def __init__(self, api_key=None, system_prompt=None):
+        """
+        Initialize the Gemini class with the API key and system prompt.
+
+        :param api_key: The API key for the Google Gemini API
+        :param system_prompt: The system prompt to use for generating content
+        """
 
         # Set the API key, either from the environment or directly from the parameter
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
@@ -28,6 +34,12 @@ class Gemini:
         self.system_prompt = system_prompt
 
     def ask(self, prompt: str) -> AIResponse:
+        """
+        Ask the Gemini API a question based on a prompt.
+
+        :param prompt: The prompt to ask the Gemini API
+        :return: The response from the Gemini API
+        """
         try:
             # Clean previous response
             self.response = None
@@ -60,19 +72,42 @@ class Gemini:
             return None
 
     def ask_and_execute(self, prompt: str) -> AIResponse:
+        """
+        Ask the Gemini API a question based on a prompt and execute the generated code.
+
+        :param prompt: The prompt to ask the Gemini API
+        :return: The response from the Gemini API
+        """
         self.ask(prompt)
         self._execute()
         return self.response
 
     def ask_and_generate_python_code(self, prompt: str) -> str:
+        """
+        Ask the Gemini API a question based on a prompt and generate Python code.
+
+        :param prompt: The prompt to ask the Gemini API
+        :return: The generated Python code
+        """
         self.ask(prompt)
         return self._to_python_code()
 
     def ask_and_generate_json_str(self, prompt: str) -> str:
+        """
+        Ask the Gemini API a question based on a prompt and generate a JSON string.
+
+        :param prompt: The prompt to ask the Gemini API
+        :return: The generated JSON string
+        """
         self.ask(prompt)
         return self._to_json_str()
 
     def _to_python_code(self) -> str:
+        """
+        Convert the response to Python code.
+
+        :return: The generated Python code
+        """
         code = self.response["response"]
         code = code.replace("```python", "").replace("```", "")
 
@@ -80,6 +115,12 @@ class Gemini:
         return code
 
     def _to_json_str(self) -> str:
+        """
+        Convert the response to a JSON string.
+
+        :return: The generated JSON string
+        """
+
         json_string = self.response["response"]
         json_string = json_string.replace("```json", "").replace("```", "")
         # Convert the string to a json object
@@ -95,5 +136,6 @@ class Gemini:
         return json_str
 
     def _execute(self) -> None:
+        """Execute the generated code."""
         code = self._to_python_code()
         exec(code)

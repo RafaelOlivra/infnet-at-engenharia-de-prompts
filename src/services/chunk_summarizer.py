@@ -90,12 +90,21 @@ class ChunkSummarizer:
         return chunks
 
     def _create_chunk_prompt(self, chunk) -> str:
-        """Generates a prompt for summarizing a chunk of text."""
+        """
+        Generates a prompt for summarizing a chunk of text.
+
+        :param chunk: The chunk of text to summarize
+        :return: The prompt for summarizing the chunk
+        """
         content = "\n".join(chunk)
         return self.chunk_prompt_template.format(content=content).strip()
 
     def _summarize_chunks(self) -> list:
-        """Summarizes each chunk of text using the AI provider."""
+        """
+        Summarizes each chunk of text using the AI provider.
+
+        :return: List of summaries for each chunk
+        """
         chunk_summaries = []
         for i, chunk in enumerate(self.chunks):
             print(f"Summarizing chunk {i + 1} of {len(self.chunks)}")
