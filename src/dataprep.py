@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import json
 
 from services.camara_deputados import CamaraDeputados
@@ -194,7 +195,10 @@ def save_grouped_deputados_expenses(
 
 def get_deputado_name_by_id(id: int) -> str:
     """Get deputado name by id."""
-    return CamaraDeputados().get_deputado_name_by_id(id)
+    if not np.isnan(id) and (isinstance(id, int) or isinstance(id, float)):
+        id = int(id)
+        return CamaraDeputados().get_deputado_name_by_id(id)
+    return id
 
 
 def generate_deputados_expenses_analysis():
@@ -552,7 +556,7 @@ def generate_faiss_index():
     if PROCESS_DEPUTADOS_TO_FAISS:
         deputados_df = pd.read_parquet(deputados_file)
         deputados_df["text"] = deputados_df.apply(
-            lambda row: f"{row['id']} {row['nome']} {row['siglaPartido']}", axis=1
+            lambda row: f"{row['id']} || {row['nome']} || {row['siglaPartido']}", axis=1
         )
 
         # Add the deputados insights to the index
@@ -566,7 +570,7 @@ def generate_faiss_index():
                 ]
             )
 
-        print(deputados_df)
+        print(deputados_df["text"])
 
         # Generate the index
         faiss_db.add_text(deputados_df["text"].to_list())
@@ -594,6 +598,11 @@ def generate_faiss_index():
                 )
             expenses_df = _expenses_df
 
+        # Add R$ to the valorDocumento column
+        expenses_df["valorDocumento"] = expenses_df["valorDocumento"].apply(
+            lambda x: f"R${x}"
+        )
+
         # Add the expenses insights to the index
         with open(expenses_insights_file, "r") as file:
             expenses_insights = json.load(file)
@@ -605,11 +614,17 @@ def generate_faiss_index():
                 ]
             )
 
+        # Add Deputado name to the text using get_deputado_name_by_id(self, id: int)
+        # if value is an integer
+        expenses_df["idDeputado"] = expenses_df["idDeputado"].apply(
+            lambda x: get_deputado_name_by_id(x)
+        )
+
         expenses_df["text"] = expenses_df.apply(
-            lambda row: f"{row['idDeputado']} {row['tipoDespesa']} {row['valorDocumento']}",
+            lambda row: f"{row['idDeputado']} || {row['tipoDespesa']} || {row['valorDocumento']}",
             axis=1,
         )
-        print(expenses_df)
+        print(expenses_df["text"])
 
         # Generate the index
         faiss_db.add_text(expenses_df["text"].to_list())
@@ -622,7 +637,7 @@ def generate_faiss_index():
     if PROCESS_PROPOSITIONS_TO_FAISS:
         propositions_df = pd.read_parquet(propositions_file)
         propositions_df["text"] = propositions_df.apply(
-            lambda row: f"{row['id']} {row['siglaTipo']} {row['ementa']}",
+            lambda row: f"{row['id']} || {row['siglaTipo']} || {row['ementa']}",
             axis=1,
         )
 

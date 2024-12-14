@@ -155,7 +155,7 @@ with tab3:
             if faiss_kdb:
                 rag_results_list = faiss_kdb.search(user_message, num_results=40)
                 if rag_results_list:
-                    rag_results = "\n - ".join(rag_results_list)
+                    rag_results = "- " + "\n - ".join(rag_results_list)
 
             # Prompt the user with the question and the RAG information
             user_prompt = f"""
