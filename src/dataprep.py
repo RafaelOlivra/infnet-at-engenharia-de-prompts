@@ -69,6 +69,7 @@ def generate_deputados_by_party_analysis():
 
     You need to generate a pie chart using matplotlib with the distribution of deputados by party.
     You need to save the pie chart as a .png file at {deputados_distribution_pie_chart_file}.
+    There's will be a lot of items, so you need to make sure the labels are readable.
     Don't explain anything, just generate the python code.
     """
 

@@ -15,7 +15,12 @@ class Gemini:
     A simple class that implements methods to generate content using the Google Gemini API.
     """
 
-    def __init__(self, api_key=None, system_prompt=None):
+    def __init__(
+        self,
+        api_key: str = None,
+        system_prompt: str = None,
+        model_name: str = "gemini-1.5-flash",
+    ):
         """
         Initialize the Gemini class with the API key and system prompt.
 
@@ -29,9 +34,13 @@ class Gemini:
             raise ValueError("API key is required for Google Gemini API")
 
         genai.configure(api_key=self.api_key)
-        self.model_name = "gemini-1.5-flash"
+        self.model_name = model_name
         self.response = None
         self.system_prompt = system_prompt
+
+    # ----------------------------
+    # Main Methods
+    # ----------------------------
 
     def ask(self, prompt: str) -> AIResponse:
         """
@@ -101,6 +110,10 @@ class Gemini:
         """
         self.ask(prompt)
         return self._to_json_str()
+
+    # ----------------------------
+    # Utils
+    # ----------------------------
 
     def _to_python_code(self) -> str:
         """
