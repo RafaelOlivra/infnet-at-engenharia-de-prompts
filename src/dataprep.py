@@ -471,7 +471,7 @@ dashboard_generation_step_4_file = "./data/02_intermediate/dashboard_step_4.py"
 def generate_dashboard_code_with_bp():
     """Generate the code to create a dashboard with the data generated in the previous exercises."""
 
-    # 7) Generate the remaining dashboard code with Batch Prompting
+    # Generate the remaining dashboard code with Batch Prompting
 
     # Get the columns of the expenses and propositions data
     daily_expenses_columns = pd.read_parquet(expenses_file_grouped).columns.to_list()
