@@ -615,7 +615,6 @@ def generate_faiss_index():
             )
 
         # Add Deputado name to the text using get_deputado_name_by_id(self, id: int)
-        # if value is an integer
         expenses_df["idDeputado"] = expenses_df["idDeputado"].apply(
             lambda x: get_deputado_name_by_id(x)
         )
